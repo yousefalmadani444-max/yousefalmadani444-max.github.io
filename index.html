@@ -772,7 +772,7 @@ async function placeOrder() {
   try {
     const res = await fetch('https://formspree.io/f/xpqydqgw', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+      headers: { 'Content-Type': 'application/json', 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
       body: JSON.stringify({
         _subject: `🛒 New Order ${orderId} — ${first} ${last}`,
         'Order ID': orderId,
