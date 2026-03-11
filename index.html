@@ -748,7 +748,7 @@ function renderCheckout() {
   totalEl.textContent = total.toFixed(2) + ' JD';
 }
 
-function placeOrder() {
+async function placeOrder() {
   const first = document.getElementById('f-first').value.trim();
   const last = document.getElementById('f-last').value.trim();
   const email = document.getElementById('f-email').value.trim();
@@ -757,22 +757,59 @@ function placeOrder() {
   const city = document.getElementById('f-city').value.trim();
   if(!first||!last||!email||!phone||!address||!city) { toast('⚠️ Please fill all fields!'); return; }
   if(cart.length === 0) { toast('⚠️ Your cart is empty!'); return; }
+
   const total = cart.reduce((s,c) => s+c.price*c.qty, 0);
   const totalItems = cart.reduce((s,c) => s+c.qty, 0);
   const payment = document.querySelector('input[name="pay"]:checked').value;
   const orderId = 'ME-' + Math.random().toString(36).substr(2,8).toUpperCase();
-  document.getElementById('success-box').innerHTML = `
-    <div class="order-row"><span class="order-key">Order ID</span><span class="order-val">${orderId}</span></div>
-    <div class="order-row"><span class="order-key">Customer</span><span class="order-val">${first} ${last}</span></div>
-    <div class="order-row"><span class="order-key">Email</span><span class="order-val">${email}</span></div>
-    <div class="order-row"><span class="order-key">Phone</span><span class="order-val">${phone}</span></div>
-    <div class="order-row"><span class="order-key">Address</span><span class="order-val">${address}, ${city}</span></div>
-    <div class="order-row"><span class="order-key">Items</span><span class="order-val">${totalItems} item(s)</span></div>
-    <div class="order-row"><span class="order-key">Total</span><span class="order-val">${total.toFixed(2)} JD</span></div>
-    <div class="order-row"><span class="order-key">Payment</span><span class="order-val">${payment === 'cash' ? '💵 Cash on Delivery' : '📱 CliQ'}</span></div>`;
-  cart = [];
-  updateCartMeta();
-  showPage('success');
+  const itemsList = cart.map(c => `${c.emoji} ${c.name} x${c.qty} = ${(c.price*c.qty).toFixed(2)} JD`).join('\n');
+
+  // Show loading state
+  const btn = document.querySelector('.place-order-btn');
+  btn.textContent = 'Sending order...';
+  btn.disabled = true;
+
+  try {
+    const res = await fetch('https://formspree.io/f/xpqydqgw', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+      body: JSON.stringify({
+        _subject: `🛒 New Order ${orderId} — ${first} ${last}`,
+        'Order ID': orderId,
+        'Customer Name': first + ' ' + last,
+        'Email': email,
+        'Phone': phone,
+        'Delivery Address': address + ', ' + city,
+        'Items Ordered': itemsList,
+        'Total Items': totalItems,
+        'Order Total': total.toFixed(2) + ' JD',
+        'Payment Method': payment === 'cash' ? 'Cash on Delivery' : 'CliQ',
+      })
+    });
+
+    if(res.ok) {
+      document.getElementById('success-box').innerHTML = `
+        <div class="order-row"><span class="order-key">Order ID</span><span class="order-val">${orderId}</span></div>
+        <div class="order-row"><span class="order-key">Customer</span><span class="order-val">${first} ${last}</span></div>
+        <div class="order-row"><span class="order-key">Email</span><span class="order-val">${email}</span></div>
+        <div class="order-row"><span class="order-key">Phone</span><span class="order-val">${phone}</span></div>
+        <div class="order-row"><span class="order-key">Address</span><span class="order-val">${address}, ${city}</span></div>
+        <div class="order-row"><span class="order-key">Items</span><span class="order-val">${totalItems} item(s)</span></div>
+        <div class="order-row"><span class="order-key">Total</span><span class="order-val">${total.toFixed(2)} JD</span></div>
+        <div class="order-row"><span class="order-key">Payment</span><span class="order-val">${payment === 'cash' ? '💵 Cash on Delivery' : '📱 CliQ'}</span></div>`;
+      cart = [];
+      updateCartMeta();
+      showPage('success');
+    } else {
+      toast('❌ Failed to send order. Please try again.');
+      btn.textContent = 'Place Order →';
+      btn.disabled = false;
+    }
+  } catch(err) {
+    toast('❌ Network error. Please try again.');
+    btn.textContent = 'Place Order →';
+    btn.disabled = false;
+  }
 }
 
 // ========== TOAST ==========
