@@ -1,873 +1,787 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>MikroElectron – Electronics Store Jordan</title>
-  <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;600;800&display=swap" rel="stylesheet"/>
-  <style>
-    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
-
-    :root {
-      --bg: #0a0a0f;
-      --surface: #111118;
-      --card: #16161f;
-      --border: #2a2a3a;
-      --accent: #00e5ff;
-      --accent2: #7c3aed;
-      --text: #e8e8f0;
-      --muted: #6b6b80;
-      --green: #00ff88;
-    }
-
-    html { scroll-behavior: smooth; }
-
-    body {
-      background: var(--bg);
-      color: var(--text);
-      font-family: 'Syne', sans-serif;
-      overflow-x: hidden;
-    }
-
-    /* NOISE OVERLAY */
-    body::before {
-      content: '';
-      position: fixed;
-      inset: 0;
-      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
-      pointer-events: none;
-      z-index: 9999;
-      opacity: 0.4;
-    }
-
-    /* NAV */
-    nav {
-      position: fixed;
-      top: 0; left: 0; right: 0;
-      z-index: 100;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 1.2rem 4rem;
-      background: rgba(10,10,15,0.85);
-      backdrop-filter: blur(20px);
-      border-bottom: 1px solid var(--border);
-    }
-
-    .logo {
-      font-family: 'Space Mono', monospace;
-      font-size: 1.3rem;
-      font-weight: 700;
-      color: var(--accent);
-      letter-spacing: -1px;
-      text-decoration: none;
-    }
-
-    .logo span { color: var(--text); }
-
-    nav ul {
-      display: flex;
-      gap: 2.5rem;
-      list-style: none;
-    }
-
-    nav ul a {
-      color: var(--muted);
-      text-decoration: none;
-      font-size: 0.9rem;
-      font-weight: 600;
-      letter-spacing: 0.05em;
-      text-transform: uppercase;
-      transition: color 0.2s;
-    }
-
-    nav ul a:hover { color: var(--accent); }
-
-    .nav-cta {
-      background: var(--accent);
-      color: #000 !important;
-      padding: 0.5rem 1.2rem;
-      border-radius: 4px;
-      font-weight: 700 !important;
-    }
-
-    /* HERO */
-    .hero {
-      min-height: 100vh;
-      display: flex;
-      align-items: center;
-      padding: 8rem 4rem 4rem;
-      position: relative;
-      overflow: hidden;
-    }
-
-    .hero-grid {
-      position: absolute;
-      inset: 0;
-      background-image:
-        linear-gradient(rgba(0,229,255,0.04) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(0,229,255,0.04) 1px, transparent 1px);
-      background-size: 60px 60px;
-    }
-
-    .hero-glow {
-      position: absolute;
-      width: 600px; height: 600px;
-      border-radius: 50%;
-      background: radial-gradient(circle, rgba(124,58,237,0.15) 0%, transparent 70%);
-      top: -100px; right: -100px;
-      pointer-events: none;
-    }
-
-    .hero-glow2 {
-      position: absolute;
-      width: 400px; height: 400px;
-      border-radius: 50%;
-      background: radial-gradient(circle, rgba(0,229,255,0.1) 0%, transparent 70%);
-      bottom: 0; left: 200px;
-      pointer-events: none;
-    }
-
-    .hero-content {
-      position: relative;
-      max-width: 700px;
-    }
-
-    .hero-badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.5rem;
-      background: rgba(0,229,255,0.08);
-      border: 1px solid rgba(0,229,255,0.2);
-      color: var(--accent);
-      padding: 0.4rem 1rem;
-      border-radius: 100px;
-      font-size: 0.8rem;
-      font-family: 'Space Mono', monospace;
-      letter-spacing: 0.05em;
-      margin-bottom: 2rem;
-      animation: fadeUp 0.6s ease both;
-    }
-
-    .hero-badge::before {
-      content: '';
-      width: 8px; height: 8px;
-      border-radius: 50%;
-      background: var(--green);
-      animation: pulse 1.5s infinite;
-    }
-
-    @keyframes pulse {
-      0%, 100% { opacity: 1; transform: scale(1); }
-      50% { opacity: 0.5; transform: scale(0.8); }
-    }
-
-    h1 {
-      font-size: clamp(3rem, 6vw, 5.5rem);
-      font-weight: 800;
-      line-height: 1.05;
-      letter-spacing: -2px;
-      margin-bottom: 1.5rem;
-      animation: fadeUp 0.6s 0.1s ease both;
-    }
-
-    h1 .accent { color: var(--accent); }
-    h1 .accent2 { color: var(--accent2); }
-
-    .hero-sub {
-      font-size: 1.15rem;
-      color: var(--muted);
-      line-height: 1.7;
-      margin-bottom: 2.5rem;
-      max-width: 520px;
-      animation: fadeUp 0.6s 0.2s ease both;
-    }
-
-    .hero-btns {
-      display: flex;
-      gap: 1rem;
-      animation: fadeUp 0.6s 0.3s ease both;
-    }
-
-    .btn {
-      padding: 0.85rem 2rem;
-      border-radius: 6px;
-      font-family: 'Syne', sans-serif;
-      font-weight: 700;
-      font-size: 0.95rem;
-      cursor: pointer;
-      border: none;
-      text-decoration: none;
-      display: inline-flex;
-      align-items: center;
-      gap: 0.5rem;
-      transition: all 0.2s;
-    }
-
-    .btn-primary {
-      background: var(--accent);
-      color: #000;
-    }
-
-    .btn-primary:hover {
-      background: #33eeff;
-      transform: translateY(-2px);
-      box-shadow: 0 8px 30px rgba(0,229,255,0.3);
-    }
-
-    .btn-outline {
-      background: transparent;
-      color: var(--text);
-      border: 1px solid var(--border);
-    }
-
-    .btn-outline:hover {
-      border-color: var(--accent);
-      color: var(--accent);
-      transform: translateY(-2px);
-    }
-
-    .hero-stats {
-      display: flex;
-      gap: 3rem;
-      margin-top: 4rem;
-      padding-top: 3rem;
-      border-top: 1px solid var(--border);
-      animation: fadeUp 0.6s 0.4s ease both;
-    }
-
-    .stat-num {
-      font-size: 2rem;
-      font-weight: 800;
-      color: var(--accent);
-      font-family: 'Space Mono', monospace;
-    }
-
-    .stat-label {
-      font-size: 0.8rem;
-      color: var(--muted);
-      text-transform: uppercase;
-      letter-spacing: 0.08em;
-      margin-top: 0.2rem;
-    }
-
-    /* CATEGORIES */
-    .section {
-      padding: 6rem 4rem;
-    }
-
-    .section-label {
-      font-family: 'Space Mono', monospace;
-      font-size: 0.75rem;
-      color: var(--accent);
-      text-transform: uppercase;
-      letter-spacing: 0.15em;
-      margin-bottom: 0.75rem;
-    }
-
-    .section-title {
-      font-size: clamp(2rem, 3.5vw, 3rem);
-      font-weight: 800;
-      letter-spacing: -1px;
-      margin-bottom: 3rem;
-    }
-
-    .categories {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-      gap: 1rem;
-    }
-
-    .cat-card {
-      background: var(--card);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 1.8rem 1.5rem;
-      cursor: pointer;
-      transition: all 0.25s;
-      position: relative;
-      overflow: hidden;
-    }
-
-    .cat-card::before {
-      content: '';
-      position: absolute;
-      inset: 0;
-      background: linear-gradient(135deg, rgba(0,229,255,0.05), transparent);
-      opacity: 0;
-      transition: opacity 0.25s;
-    }
-
-    .cat-card:hover {
-      border-color: var(--accent);
-      transform: translateY(-4px);
-      box-shadow: 0 12px 40px rgba(0,229,255,0.1);
-    }
-
-    .cat-card:hover::before { opacity: 1; }
-
-    .cat-icon {
-      font-size: 2rem;
-      margin-bottom: 1rem;
-    }
-
-    .cat-name {
-      font-weight: 700;
-      font-size: 1rem;
-      margin-bottom: 0.3rem;
-    }
-
-    .cat-count {
-      font-size: 0.8rem;
-      color: var(--muted);
-      font-family: 'Space Mono', monospace;
-    }
-
-    /* PRODUCTS */
-    .products-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-      gap: 1.5rem;
-    }
-
-    .product-card {
-      background: var(--card);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      overflow: hidden;
-      transition: all 0.25s;
-      cursor: pointer;
-    }
-
-    .product-card:hover {
-      border-color: rgba(0,229,255,0.4);
-      transform: translateY(-4px);
-      box-shadow: 0 16px 50px rgba(0,0,0,0.4);
-    }
-
-    .product-img {
-      height: 180px;
-      background: var(--surface);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 4rem;
-      border-bottom: 1px solid var(--border);
-      position: relative;
-    }
-
-    .product-badge {
-      position: absolute;
-      top: 12px; left: 12px;
-      background: var(--accent2);
-      color: #fff;
-      font-size: 0.7rem;
-      font-weight: 700;
-      padding: 0.25rem 0.6rem;
-      border-radius: 4px;
-      font-family: 'Space Mono', monospace;
-      text-transform: uppercase;
-    }
-
-    .product-info {
-      padding: 1.3rem;
-    }
-
-    .product-name {
-      font-weight: 700;
-      font-size: 1rem;
-      margin-bottom: 0.5rem;
-      line-height: 1.3;
-    }
-
-    .product-desc {
-      font-size: 0.82rem;
-      color: var(--muted);
-      line-height: 1.5;
-      margin-bottom: 1rem;
-    }
-
-    .product-footer {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-    }
-
-    .price {
-      font-family: 'Space Mono', monospace;
-      font-size: 1.1rem;
-      font-weight: 700;
-      color: var(--accent);
-    }
-
-    .add-btn {
-      background: rgba(0,229,255,0.1);
-      border: 1px solid rgba(0,229,255,0.3);
-      color: var(--accent);
-      padding: 0.4rem 0.9rem;
-      border-radius: 6px;
-      font-size: 0.82rem;
-      font-weight: 700;
-      cursor: pointer;
-      font-family: 'Syne', sans-serif;
-      transition: all 0.2s;
-    }
-
-    .add-btn:hover {
-      background: var(--accent);
-      color: #000;
-    }
-
-    /* WHY US */
-    .why-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-      gap: 1.5rem;
-    }
-
-    .why-card {
-      background: var(--card);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 2rem;
-    }
-
-    .why-icon {
-      width: 48px; height: 48px;
-      border-radius: 10px;
-      background: rgba(0,229,255,0.1);
-      border: 1px solid rgba(0,229,255,0.2);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 1.4rem;
-      margin-bottom: 1.2rem;
-    }
-
-    .why-title {
-      font-size: 1.05rem;
-      font-weight: 700;
-      margin-bottom: 0.5rem;
-    }
-
-    .why-text {
-      font-size: 0.88rem;
-      color: var(--muted);
-      line-height: 1.6;
-    }
-
-    /* BANNER */
-    .banner {
-      margin: 0 4rem;
-      border-radius: 16px;
-      background: linear-gradient(135deg, #7c3aed, #0070f3);
-      padding: 4rem;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 2rem;
-      position: relative;
-      overflow: hidden;
-    }
-
-    .banner::before {
-      content: '';
-      position: absolute;
-      inset: 0;
-      background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.05'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
-    }
-
-    .banner-content { position: relative; }
-
-    .banner h2 {
-      font-size: 2.2rem;
-      font-weight: 800;
-      letter-spacing: -1px;
-      margin-bottom: 0.75rem;
-    }
-
-    .banner p {
-      color: rgba(255,255,255,0.75);
-      font-size: 1rem;
-      line-height: 1.6;
-      max-width: 500px;
-    }
-
-    .banner .btn-primary {
-      position: relative;
-      white-space: nowrap;
-    }
-
-    /* FOOTER */
-    footer {
-      padding: 4rem;
-      border-top: 1px solid var(--border);
-      display: grid;
-      grid-template-columns: 2fr 1fr 1fr 1fr;
-      gap: 3rem;
-      margin-top: 4rem;
-    }
-
-    .footer-brand p {
-      color: var(--muted);
-      font-size: 0.88rem;
-      line-height: 1.7;
-      margin-top: 1rem;
-      max-width: 280px;
-    }
-
-    .footer-col h4 {
-      font-size: 0.8rem;
-      text-transform: uppercase;
-      letter-spacing: 0.1em;
-      color: var(--muted);
-      margin-bottom: 1.2rem;
-      font-family: 'Space Mono', monospace;
-    }
-
-    .footer-col ul { list-style: none; }
-
-    .footer-col ul li {
-      margin-bottom: 0.6rem;
-    }
-
-    .footer-col ul a {
-      color: var(--text);
-      text-decoration: none;
-      font-size: 0.9rem;
-      transition: color 0.2s;
-    }
-
-    .footer-col ul a:hover { color: var(--accent); }
-
-    .footer-bottom {
-      padding: 1.5rem 4rem;
-      border-top: 1px solid var(--border);
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-
-    .footer-bottom p {
-      color: var(--muted);
-      font-size: 0.82rem;
-      font-family: 'Space Mono', monospace;
-    }
-
-    @keyframes fadeUp {
-      from { opacity: 0; transform: translateY(20px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-
-    /* SCROLL ANIMATIONS */
-    .reveal {
-      opacity: 0;
-      transform: translateY(30px);
-      transition: opacity 0.6s ease, transform 0.6s ease;
-    }
-
-    .reveal.visible {
-      opacity: 1;
-      transform: translateY(0);
-    }
-
-    @media (max-width: 768px) {
-      nav { padding: 1rem 1.5rem; }
-      nav ul { display: none; }
-      .hero { padding: 7rem 1.5rem 3rem; }
-      .section { padding: 4rem 1.5rem; }
-      .banner { margin: 0 1.5rem; padding: 2.5rem; flex-direction: column; }
-      footer { grid-template-columns: 1fr; padding: 3rem 1.5rem; }
-      .hero-stats { flex-wrap: wrap; gap: 1.5rem; }
-      .footer-bottom { padding: 1.5rem; flex-direction: column; gap: 0.5rem; text-align: center; }
-    }
-  </style>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>MikroElectron – Electronics Store Jordan</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+:root{
+  --bg:#080810;--surface:#0f0f1a;--card:#141422;--border:#1e1e32;
+  --accent:#00e5ff;--accent2:#7c3aed;--text:#eeeef8;--muted:#5a5a78;
+  --green:#00ff88;--red:#ff4466;--yellow:#ffcc00;
+}
+html{scroll-behavior:smooth;}
+body{background:var(--bg);color:var(--text);font-family:'Syne',sans-serif;overflow-x:hidden;}
+::-webkit-scrollbar{width:6px;}
+::-webkit-scrollbar-track{background:var(--bg);}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px;}
+
+/* NAV */
+nav{position:fixed;top:0;left:0;right:0;z-index:200;display:flex;align-items:center;justify-content:space-between;padding:1rem 3rem;background:rgba(8,8,16,0.94);backdrop-filter:blur(20px);border-bottom:1px solid var(--border);}
+.logo{font-family:'Space Mono',monospace;font-size:1.2rem;font-weight:700;color:var(--accent);text-decoration:none;letter-spacing:-0.5px;cursor:pointer;}
+.logo span{color:var(--text);}
+.nav-links{display:flex;align-items:center;gap:2rem;list-style:none;}
+.nav-links a{color:var(--muted);text-decoration:none;font-size:0.82rem;font-weight:600;text-transform:uppercase;letter-spacing:0.08em;transition:color 0.2s;cursor:pointer;}
+.nav-links a:hover,.nav-links a.active{color:var(--accent);}
+.nav-right{display:flex;align-items:center;gap:1rem;}
+.search-wrap{display:flex;align-items:center;background:var(--card);border:1px solid var(--border);border-radius:8px;padding:0.45rem 0.9rem;gap:0.5rem;transition:border-color 0.2s;}
+.search-wrap:focus-within{border-color:var(--accent);}
+.search-wrap input{background:none;border:none;outline:none;color:var(--text);font-family:'Syne',sans-serif;font-size:0.82rem;width:160px;}
+.search-wrap input::placeholder{color:var(--muted);}
+.cart-btn{position:relative;background:rgba(0,229,255,0.1);border:1px solid rgba(0,229,255,0.3);color:var(--accent);padding:0.5rem 1.1rem;border-radius:8px;font-family:'Syne',sans-serif;font-weight:700;font-size:0.82rem;cursor:pointer;transition:all 0.2s;display:flex;align-items:center;gap:0.5rem;}
+.cart-btn:hover{background:var(--accent);color:#000;}
+.cart-badge{position:absolute;top:-7px;right:-7px;background:var(--red);color:#fff;width:18px;height:18px;border-radius:50%;font-size:0.6rem;display:flex;align-items:center;justify-content:center;font-weight:700;display:none;}
+
+/* PAGES */
+.page{display:none;min-height:100vh;padding-top:68px;}
+.page.active{display:block;}
+
+/* HERO */
+.hero{min-height:calc(100vh - 68px);display:flex;align-items:center;padding:4rem 3rem;position:relative;overflow:hidden;}
+.hero-grid{position:absolute;inset:0;background-image:linear-gradient(rgba(0,229,255,0.025) 1px,transparent 1px),linear-gradient(90deg,rgba(0,229,255,0.025) 1px,transparent 1px);background-size:50px 50px;}
+.hero-glow{position:absolute;width:700px;height:700px;border-radius:50%;background:radial-gradient(circle,rgba(124,58,237,0.13) 0%,transparent 70%);top:-200px;right:-200px;pointer-events:none;}
+.hero-glow2{position:absolute;width:400px;height:400px;border-radius:50%;background:radial-gradient(circle,rgba(0,229,255,0.08) 0%,transparent 70%);bottom:-100px;left:100px;pointer-events:none;}
+.hero-content{position:relative;max-width:680px;}
+.hero-badge{display:inline-flex;align-items:center;gap:0.5rem;background:rgba(0,229,255,0.07);border:1px solid rgba(0,229,255,0.2);color:var(--accent);padding:0.4rem 1rem;border-radius:100px;font-size:0.73rem;font-family:'Space Mono',monospace;margin-bottom:2rem;animation:fadeUp 0.5s ease both;}
+.live-dot{width:7px;height:7px;border-radius:50%;background:var(--green);animation:pulse 1.5s infinite;}
+h1{font-size:clamp(2.8rem,5.5vw,5rem);font-weight:800;line-height:1.05;letter-spacing:-2px;margin-bottom:1.5rem;animation:fadeUp 0.5s 0.1s ease both;}
+h1 .c1{color:var(--accent);}
+h1 .c2{color:var(--accent2);}
+.hero-sub{font-size:1.05rem;color:var(--muted);line-height:1.7;margin-bottom:2.5rem;max-width:500px;animation:fadeUp 0.5s 0.2s ease both;}
+.hero-btns{display:flex;gap:1rem;flex-wrap:wrap;animation:fadeUp 0.5s 0.3s ease both;}
+.btn{padding:0.8rem 1.8rem;border-radius:8px;font-family:'Syne',sans-serif;font-weight:700;font-size:0.9rem;cursor:pointer;border:none;text-decoration:none;display:inline-flex;align-items:center;gap:0.5rem;transition:all 0.2s;}
+.btn-primary{background:var(--accent);color:#000;}
+.btn-primary:hover{background:#33eeff;transform:translateY(-2px);box-shadow:0 8px 30px rgba(0,229,255,0.25);}
+.btn-outline{background:transparent;color:var(--text);border:1px solid var(--border);}
+.btn-outline:hover{border-color:var(--accent);color:var(--accent);transform:translateY(-2px);}
+.hero-stats{display:flex;gap:3rem;flex-wrap:wrap;margin-top:3.5rem;padding-top:2.5rem;border-top:1px solid var(--border);animation:fadeUp 0.5s 0.4s ease both;}
+.stat-num{font-size:1.8rem;font-weight:800;color:var(--accent);font-family:'Space Mono',monospace;}
+.stat-label{font-size:0.73rem;color:var(--muted);text-transform:uppercase;letter-spacing:0.08em;margin-top:0.2rem;}
+
+/* SHOP LAYOUT */
+.shop-layout{display:flex;gap:2rem;padding:2rem 3rem;min-height:calc(100vh - 68px);}
+.sidebar{width:230px;flex-shrink:0;}
+.sidebar-section{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:1.4rem;margin-bottom:1rem;}
+.sidebar-title{font-size:0.7rem;text-transform:uppercase;letter-spacing:0.12em;color:var(--muted);font-family:'Space Mono',monospace;margin-bottom:1rem;}
+.filter-btn{display:block;width:100%;text-align:left;background:none;border:none;color:var(--muted);font-family:'Syne',sans-serif;font-size:0.85rem;padding:0.45rem 0.7rem;border-radius:6px;cursor:pointer;transition:all 0.2s;margin-bottom:0.25rem;}
+.filter-btn:hover,.filter-btn.active{background:rgba(0,229,255,0.08);color:var(--accent);}
+.price-range{width:100%;accent-color:var(--accent);cursor:pointer;margin-top:0.3rem;}
+.price-display{font-family:'Space Mono',monospace;font-size:0.78rem;color:var(--accent);margin-top:0.5rem;}
+.shop-main{flex:1;min-width:0;}
+.shop-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:1.5rem;flex-wrap:wrap;gap:0.5rem;}
+.shop-title{font-size:1.4rem;font-weight:800;letter-spacing:-0.5px;}
+.product-count-label{font-family:'Space Mono',monospace;font-size:0.78rem;color:var(--muted);}
+
+/* PRODUCT CARD */
+.products-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(215px,1fr));gap:1.1rem;}
+.product-card{background:var(--card);border:1px solid var(--border);border-radius:12px;overflow:hidden;transition:all 0.25s;cursor:pointer;}
+.product-card:hover{border-color:rgba(0,229,255,0.35);transform:translateY(-4px);box-shadow:0 16px 50px rgba(0,0,0,0.5);}
+.product-img{height:155px;background:var(--surface);display:flex;align-items:center;justify-content:center;font-size:3.5rem;border-bottom:1px solid var(--border);position:relative;}
+.badge{position:absolute;top:10px;left:10px;font-size:0.62rem;font-weight:700;padding:0.2rem 0.5rem;border-radius:4px;font-family:'Space Mono',monospace;text-transform:uppercase;}
+.badge-new{background:var(--accent2);color:#fff;}
+.badge-sale{background:var(--red);color:#fff;}
+.badge-hot{background:var(--yellow);color:#000;}
+.product-info{padding:1rem;}
+.product-cat{font-size:0.67rem;color:var(--accent);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:0.25rem;font-family:'Space Mono',monospace;}
+.product-name{font-weight:700;font-size:0.92rem;margin-bottom:0.35rem;line-height:1.3;}
+.product-desc{font-size:0.76rem;color:var(--muted);line-height:1.5;margin-bottom:0.85rem;}
+.product-footer{display:flex;align-items:center;justify-content:space-between;gap:0.5rem;}
+.price{font-family:'Space Mono',monospace;font-size:0.98rem;font-weight:700;color:var(--accent);}
+.add-btn{background:rgba(0,229,255,0.1);border:1px solid rgba(0,229,255,0.25);color:var(--accent);padding:0.35rem 0.8rem;border-radius:6px;font-size:0.76rem;font-weight:700;cursor:pointer;font-family:'Syne',sans-serif;transition:all 0.2s;white-space:nowrap;flex-shrink:0;}
+.add-btn:hover{background:var(--accent);color:#000;}
+.add-btn.added{background:var(--green);border-color:var(--green);color:#000;}
+
+/* PRODUCT DETAIL */
+.product-detail{padding:2rem 3rem;max-width:1100px;margin:0 auto;}
+.back-btn{background:none;border:none;color:var(--muted);font-family:'Syne',sans-serif;font-size:0.88rem;cursor:pointer;display:inline-flex;align-items:center;gap:0.5rem;margin-bottom:2rem;transition:color 0.2s;padding:0;}
+.back-btn:hover{color:var(--accent);}
+.detail-layout{display:grid;grid-template-columns:1fr 1fr;gap:3rem;align-items:start;}
+.detail-img{background:var(--card);border:1px solid var(--border);border-radius:16px;height:380px;display:flex;align-items:center;justify-content:center;font-size:8rem;}
+.detail-cat{font-size:0.72rem;color:var(--accent);text-transform:uppercase;letter-spacing:0.12em;margin-bottom:0.75rem;font-family:'Space Mono',monospace;}
+.detail-name{font-size:2rem;font-weight:800;letter-spacing:-1px;margin-bottom:1rem;line-height:1.2;}
+.detail-price{font-size:2rem;font-weight:700;color:var(--accent);font-family:'Space Mono',monospace;margin-bottom:1.2rem;}
+.detail-desc{color:var(--muted);line-height:1.7;font-size:0.93rem;margin-bottom:1.8rem;}
+.detail-specs{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:1.1rem;margin-bottom:1.8rem;}
+.spec-row{display:flex;justify-content:space-between;padding:0.5rem 0;border-bottom:1px solid var(--border);font-size:0.83rem;}
+.spec-row:last-child{border-bottom:none;}
+.spec-key{color:var(--muted);}
+.spec-val{font-weight:600;font-family:'Space Mono',monospace;color:var(--text);}
+.qty-row{display:flex;align-items:center;gap:1rem;margin-bottom:1.5rem;}
+.qty-label{font-size:0.82rem;color:var(--muted);text-transform:uppercase;letter-spacing:0.08em;}
+.qty-ctrl{display:flex;align-items:center;}
+.qty-btn{background:var(--card);border:1px solid var(--border);color:var(--text);width:34px;height:34px;font-size:1.1rem;cursor:pointer;transition:all 0.2s;font-family:'Space Mono',monospace;}
+.qty-btn:first-child{border-radius:6px 0 0 6px;}
+.qty-btn:last-child{border-radius:0 6px 6px 0;}
+.qty-btn:hover{background:var(--accent);color:#000;border-color:var(--accent);}
+.qty-num{background:var(--surface);border:1px solid var(--border);border-left:none;border-right:none;color:var(--text);width:48px;height:34px;text-align:center;font-family:'Space Mono',monospace;font-size:0.92rem;display:flex;align-items:center;justify-content:center;}
+.add-to-cart-big{width:100%;padding:1rem;font-size:1rem;}
+
+/* CART DRAWER */
+.cart-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.72);z-index:300;opacity:0;pointer-events:none;transition:opacity 0.3s;backdrop-filter:blur(4px);}
+.cart-overlay.open{opacity:1;pointer-events:all;}
+.cart-drawer{position:fixed;top:0;right:0;bottom:0;width:400px;background:var(--surface);border-left:1px solid var(--border);z-index:301;transform:translateX(100%);transition:transform 0.35s cubic-bezier(0.4,0,0.2,1);display:flex;flex-direction:column;}
+.cart-drawer.open{transform:translateX(0);}
+.cart-header{padding:1.4rem;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;}
+.cart-title{font-size:1.15rem;font-weight:800;letter-spacing:-0.5px;}
+.close-btn{background:var(--card);border:1px solid var(--border);color:var(--text);width:34px;height:34px;border-radius:8px;font-size:1.1rem;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all 0.2s;}
+.close-btn:hover{border-color:var(--red);color:var(--red);}
+.cart-items{flex:1;overflow-y:auto;padding:1rem 1.4rem;}
+.cart-empty-state{display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;gap:1rem;color:var(--muted);text-align:center;}
+.cart-empty-state .empty-icon{font-size:4rem;}
+.cart-item{display:flex;gap:1rem;padding:1rem 0;border-bottom:1px solid var(--border);align-items:flex-start;}
+.cart-item-img{width:58px;height:58px;background:var(--card);border:1px solid var(--border);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:1.7rem;flex-shrink:0;}
+.cart-item-info{flex:1;min-width:0;}
+.cart-item-name{font-weight:700;font-size:0.88rem;margin-bottom:0.25rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.cart-item-price{font-family:'Space Mono',monospace;font-size:0.82rem;color:var(--accent);}
+.cart-item-controls{display:flex;align-items:center;gap:0.4rem;margin-top:0.5rem;}
+.cqty-btn{background:var(--card);border:1px solid var(--border);color:var(--text);width:24px;height:24px;border-radius:4px;font-size:0.85rem;cursor:pointer;transition:all 0.2s;display:flex;align-items:center;justify-content:center;}
+.cqty-btn:hover{background:var(--accent);color:#000;border-color:var(--accent);}
+.cqty-num{font-family:'Space Mono',monospace;font-size:0.82rem;min-width:18px;text-align:center;}
+.remove-btn{background:none;border:none;color:var(--muted);cursor:pointer;font-size:1rem;padding:0.25rem;transition:color 0.2s;flex-shrink:0;margin-top:2px;}
+.remove-btn:hover{color:var(--red);}
+.cart-footer{padding:1.4rem;border-top:1px solid var(--border);}
+.cart-total-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:1.1rem;}
+.cart-total-label{font-size:0.82rem;color:var(--muted);text-transform:uppercase;letter-spacing:0.08em;}
+.cart-total-val{font-family:'Space Mono',monospace;font-size:1.4rem;font-weight:700;color:var(--accent);}
+.checkout-btn{width:100%;padding:0.95rem;font-size:0.95rem;border-radius:8px;}
+
+/* CHECKOUT */
+.checkout-page{padding:2rem 3rem;max-width:900px;margin:0 auto;}
+.checkout-grid{display:grid;grid-template-columns:1fr 360px;gap:2rem;align-items:start;}
+.form-section{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:1.8rem;margin-bottom:1.5rem;}
+.form-title{font-size:0.95rem;font-weight:700;margin-bottom:1.4rem;display:flex;align-items:center;gap:0.7rem;}
+.form-num{width:26px;height:26px;background:var(--accent);color:#000;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:0.75rem;font-weight:700;font-family:'Space Mono',monospace;flex-shrink:0;}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1rem;}
+.form-row.full{grid-template-columns:1fr;}
+.form-group{display:flex;flex-direction:column;gap:0.35rem;}
+.form-label{font-size:0.72rem;color:var(--muted);text-transform:uppercase;letter-spacing:0.08em;}
+.form-input{background:var(--surface);border:1px solid var(--border);color:var(--text);font-family:'Syne',sans-serif;font-size:0.88rem;padding:0.65rem 0.9rem;border-radius:8px;outline:none;transition:border-color 0.2s;}
+.form-input:focus{border-color:var(--accent);}
+.form-input::placeholder{color:var(--muted);}
+.order-summary-box{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:1.4rem;position:sticky;top:88px;}
+.summary-title{font-weight:700;margin-bottom:1.1rem;font-size:0.95rem;}
+.summary-item{display:flex;justify-content:space-between;align-items:center;padding:0.6rem 0;border-bottom:1px solid var(--border);font-size:0.85rem;}
+.summary-item:last-of-type{border-bottom:none;}
+.summary-item-name{color:var(--muted);}
+.summary-item-price{font-family:'Space Mono',monospace;color:var(--accent);}
+.summary-total{display:flex;justify-content:space-between;font-weight:700;margin-top:0.75rem;padding-top:0.75rem;border-top:1px solid var(--border);}
+.summary-total-price{font-family:'Space Mono',monospace;color:var(--accent);font-size:1.15rem;}
+.place-order-btn{width:100%;padding:1rem;margin-top:1.4rem;font-size:0.95rem;border-radius:8px;}
+
+/* SUCCESS */
+.success-page{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:calc(100vh - 68px);text-align:center;padding:2rem;}
+.success-icon{font-size:5rem;margin-bottom:1.5rem;animation:bounceIn 0.6s ease;}
+.success-title{font-size:2.2rem;font-weight:800;letter-spacing:-1px;margin-bottom:0.75rem;}
+.success-sub{color:var(--muted);font-size:1rem;line-height:1.7;max-width:480px;margin-bottom:2rem;}
+.order-box{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:1.4rem;text-align:left;max-width:460px;width:100%;margin-bottom:2rem;}
+.order-row{display:flex;justify-content:space-between;padding:0.5rem 0;border-bottom:1px solid var(--border);font-size:0.85rem;}
+.order-row:last-child{border-bottom:none;}
+.order-key{color:var(--muted);}
+.order-val{font-family:'Space Mono',monospace;color:var(--text);font-weight:600;}
+
+/* HOME SECTIONS */
+.section{padding:5rem 3rem;}
+.section-label{font-family:'Space Mono',monospace;font-size:0.7rem;color:var(--accent);text-transform:uppercase;letter-spacing:0.15em;margin-bottom:0.6rem;}
+.section-title{font-size:clamp(1.8rem,3vw,2.6rem);font-weight:800;letter-spacing:-1px;margin-bottom:2.5rem;}
+.cat-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:1rem;}
+.cat-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:1.4rem 1rem;cursor:pointer;transition:all 0.25s;text-align:center;}
+.cat-card:hover{border-color:var(--accent);transform:translateY(-3px);box-shadow:0 10px 30px rgba(0,229,255,0.07);}
+.cat-icon{font-size:2rem;margin-bottom:0.65rem;}
+.cat-name{font-weight:700;font-size:0.88rem;margin-bottom:0.2rem;}
+.cat-count{font-size:0.72rem;color:var(--muted);font-family:'Space Mono',monospace;}
+
+/* TOAST */
+.toast{position:fixed;bottom:1.8rem;right:1.8rem;background:var(--card);border:1px solid var(--green);color:var(--text);padding:0.9rem 1.4rem;border-radius:10px;font-size:0.88rem;font-weight:600;z-index:500;transform:translateY(100px);opacity:0;transition:all 0.3s;display:flex;align-items:center;gap:0.65rem;max-width:300px;}
+.toast.show{transform:translateY(0);opacity:1;}
+
+.no-results{text-align:center;padding:4rem 2rem;color:var(--muted);grid-column:1/-1;}
+.no-results-icon{font-size:3rem;margin-bottom:1rem;}
+
+.reveal{opacity:0;transform:translateY(25px);transition:opacity 0.6s ease,transform 0.6s ease;}
+.reveal.visible{opacity:1;transform:translateY(0);}
+
+@keyframes fadeUp{from{opacity:0;transform:translateY(20px);}to{opacity:1;transform:translateY(0);}}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1);}50%{opacity:0.4;transform:scale(0.7);}}
+@keyframes bounceIn{0%{transform:scale(0);}60%{transform:scale(1.15);}100%{transform:scale(1);}}
+
+@media(max-width:900px){
+  nav{padding:0.9rem 1.5rem;}
+  .nav-links{display:none;}
+  .search-wrap input{width:110px;}
+  .hero{padding:3rem 1.5rem;}
+  .shop-layout{flex-direction:column;padding:1.5rem;}
+  .sidebar{width:100%;}
+  .section{padding:3rem 1.5rem;}
+  .checkout-grid{grid-template-columns:1fr;}
+  .detail-layout{grid-template-columns:1fr;}
+  .cart-drawer{width:100%;}
+  .checkout-page,.product-detail{padding:1.5rem;}
+  .form-row{grid-template-columns:1fr;}
+}
+</style>
 </head>
 <body>
 
-  <!-- NAV -->
-  <nav>
-    <a class="logo" href="#">Mikro<span>Electron</span></a>
-    <ul>
-      <li><a href="#categories">Categories</a></li>
-      <li><a href="#products">Products</a></li>
-      <li><a href="#why">Why Us</a></li>
-      <li><a href="#contact">Contact</a></li>
-      <li><a href="#" class="nav-cta">Shop Now →</a></li>
-    </ul>
-  </nav>
+<!-- NAV -->
+<nav>
+  <div class="logo" onclick="showPage('home')">Mikro<span>Electron</span></div>
+  <ul class="nav-links">
+    <li><a onclick="showPage('home')" id="nav-home" class="active">Home</a></li>
+    <li><a onclick="gotoShop('All')" id="nav-shop">Shop</a></li>
+    <li><a onclick="gotoShop('Arduino')">Arduino</a></li>
+    <li><a onclick="gotoShop('Raspberry Pi')">Raspberry Pi</a></li>
+    <li><a onclick="gotoShop('Sensors')">Sensors</a></li>
+    <li><a onclick="gotoShop('IoT')">IoT</a></li>
+  </ul>
+  <div class="nav-right">
+    <div class="search-wrap">
+      <span style="font-size:0.85rem;">🔍</span>
+      <input type="text" placeholder="Search..." id="nav-search" oninput="handleSearch(this.value)"/>
+    </div>
+    <button class="cart-btn" onclick="openCart()">
+      🛒 Cart
+      <span class="cart-badge" id="cart-badge">0</span>
+    </button>
+  </div>
+</nav>
 
-  <!-- HERO -->
+<!-- CART OVERLAY + DRAWER -->
+<div class="cart-overlay" id="cart-overlay" onclick="closeCart()"></div>
+<div class="cart-drawer" id="cart-drawer">
+  <div class="cart-header">
+    <div class="cart-title">Your Cart 🛒</div>
+    <button class="close-btn" onclick="closeCart()">✕</button>
+  </div>
+  <div class="cart-items" id="cart-items"></div>
+  <div class="cart-footer" id="cart-footer" style="display:none;">
+    <div class="cart-total-row">
+      <span class="cart-total-label">Total</span>
+      <span class="cart-total-val" id="cart-total-val">0.00 JD</span>
+    </div>
+    <button class="btn btn-primary checkout-btn" onclick="closeCart();showPage('checkout');renderCheckout()">Checkout →</button>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"><span id="toast-msg">Added!</span></div>
+
+<!-- ===== HOME ===== -->
+<div class="page active" id="page-home">
   <section class="hero">
     <div class="hero-grid"></div>
     <div class="hero-glow"></div>
     <div class="hero-glow2"></div>
     <div class="hero-content">
-      <div class="hero-badge">🇯🇴 Jordan's #1 Electronics Store</div>
-      <h1>Build the<br/><span class="accent">Future</span> with<br/><span class="accent2">Electronics</span></h1>
-      <p class="hero-sub">Arduino, Raspberry Pi, sensors, microcontrollers, and IoT devices — everything engineers, students, and makers need in Amman, Jordan.</p>
+      <div class="hero-badge"><span class="live-dot"></span>Jordan's #1 Electronics Store</div>
+      <h1>Build the <span class="c1">Future</span><br/>with <span class="c2">Electronics</span></h1>
+      <p class="hero-sub">Arduino, Raspberry Pi, sensors, IoT modules and more — everything engineers, students and makers need in Amman.</p>
       <div class="hero-btns">
-        <a href="#products" class="btn btn-primary">Browse Products →</a>
-        <a href="#categories" class="btn btn-outline">View Categories</a>
+        <button class="btn btn-primary" onclick="gotoShop('All')">Browse Products →</button>
+        <button class="btn btn-outline" onclick="document.getElementById('home-cats').scrollIntoView({behavior:'smooth'})">Categories</button>
       </div>
       <div class="hero-stats">
-        <div>
-          <div class="stat-num">5000+</div>
-          <div class="stat-label">Products</div>
-        </div>
-        <div>
-          <div class="stat-num">24h</div>
-          <div class="stat-label">Delivery</div>
-        </div>
-        <div>
-          <div class="stat-num">4.4★</div>
-          <div class="stat-label">295 Reviews</div>
-        </div>
-        <div>
-          <div class="stat-num">Free</div>
-          <div class="stat-label">Soldering</div>
-        </div>
+        <div><div class="stat-num">30+</div><div class="stat-label">Products</div></div>
+        <div><div class="stat-num">24h</div><div class="stat-label">Delivery</div></div>
+        <div><div class="stat-num">4.4★</div><div class="stat-label">Rating</div></div>
+        <div><div class="stat-num">Free</div><div class="stat-label">Soldering</div></div>
       </div>
     </div>
   </section>
 
-  <!-- CATEGORIES -->
-  <section class="section" id="categories">
-    <div class="section-label">/ Browse by category</div>
-    <div class="section-title">What are you<br/>building today?</div>
-    <div class="categories reveal">
-      <div class="cat-card">
-        <div class="cat-icon">🔌</div>
-        <div class="cat-name">Arduino</div>
-        <div class="cat-count">120+ items</div>
-      </div>
-      <div class="cat-card">
-        <div class="cat-icon">🍓</div>
-        <div class="cat-name">Raspberry Pi</div>
-        <div class="cat-count">80+ items</div>
-      </div>
-      <div class="cat-card">
-        <div class="cat-icon">📡</div>
-        <div class="cat-name">Sensors</div>
-        <div class="cat-count">200+ items</div>
-      </div>
-      <div class="cat-card">
-        <div class="cat-icon">🤖</div>
-        <div class="cat-name">Robotics</div>
-        <div class="cat-count">90+ items</div>
-      </div>
-      <div class="cat-card">
-        <div class="cat-icon">📶</div>
-        <div class="cat-name">IoT & Wireless</div>
-        <div class="cat-count">150+ items</div>
-      </div>
-      <div class="cat-card">
-        <div class="cat-icon">🖨️</div>
-        <div class="cat-name">3D Printing</div>
-        <div class="cat-count">60+ items</div>
-      </div>
-      <div class="cat-card">
-        <div class="cat-icon">⚡</div>
-        <div class="cat-name">Power Supply</div>
-        <div class="cat-count">75+ items</div>
-      </div>
-      <div class="cat-card">
-        <div class="cat-icon">🔧</div>
-        <div class="cat-name">Tools & Kits</div>
-        <div class="cat-count">110+ items</div>
-      </div>
+  <section class="section" id="home-cats" style="background:var(--surface);">
+    <div class="section-label">/ Browse</div>
+    <div class="section-title reveal">What are you building?</div>
+    <div class="cat-grid reveal">
+      <div class="cat-card" onclick="gotoShop('Arduino')"><div class="cat-icon">🔌</div><div class="cat-name">Arduino</div><div class="cat-count">5 items</div></div>
+      <div class="cat-card" onclick="gotoShop('Raspberry Pi')"><div class="cat-icon">🍓</div><div class="cat-name">Raspberry Pi</div><div class="cat-count">4 items</div></div>
+      <div class="cat-card" onclick="gotoShop('Sensors')"><div class="cat-icon">📡</div><div class="cat-name">Sensors</div><div class="cat-count">6 items</div></div>
+      <div class="cat-card" onclick="gotoShop('IoT')"><div class="cat-icon">📶</div><div class="cat-name">IoT & WiFi</div><div class="cat-count">4 items</div></div>
+      <div class="cat-card" onclick="gotoShop('Robotics')"><div class="cat-icon">🤖</div><div class="cat-name">Robotics</div><div class="cat-count">4 items</div></div>
+      <div class="cat-card" onclick="gotoShop('Displays')"><div class="cat-icon">🖥️</div><div class="cat-name">Displays</div><div class="cat-count">3 items</div></div>
+      <div class="cat-card" onclick="gotoShop('Power')"><div class="cat-icon">⚡</div><div class="cat-name">Power</div><div class="cat-count">2 items</div></div>
+      <div class="cat-card" onclick="gotoShop('Tools')"><div class="cat-icon">🔧</div><div class="cat-name">Tools</div><div class="cat-count">2 items</div></div>
     </div>
   </section>
 
-  <!-- PRODUCTS -->
-  <section class="section" id="products" style="background: var(--surface);">
-    <div class="section-label">/ Featured products</div>
-    <div class="section-title">Popular picks</div>
-    <div class="products-grid reveal">
-      <div class="product-card">
-        <div class="product-img">🔌
-          <div class="product-badge">Bestseller</div>
-        </div>
-        <div class="product-info">
-          <div class="product-name">Arduino Uno R3</div>
-          <div class="product-desc">The classic microcontroller board for beginners and pros alike. ATmega328P, 14 digital I/O pins.</div>
-          <div class="product-footer">
-            <span class="price">3.50 JD</span>
-            <button class="add-btn">+ Add</button>
-          </div>
-        </div>
-      </div>
-      <div class="product-card">
-        <div class="product-img">🍓
-          <div class="product-badge">New</div>
-        </div>
-        <div class="product-info">
-          <div class="product-name">Raspberry Pi 5</div>
-          <div class="product-desc">The most powerful Pi yet. Quad-core ARM Cortex-A76, up to 8GB RAM, dual 4K display.</div>
-          <div class="product-footer">
-            <span class="price">39.00 JD</span>
-            <button class="add-btn">+ Add</button>
-          </div>
-        </div>
-      </div>
-      <div class="product-card">
-        <div class="product-img">🌡️</div>
-        <div class="product-info">
-          <div class="product-name">DHT22 Temp & Humidity</div>
-          <div class="product-desc">High accuracy digital temperature and humidity sensor. Perfect for weather stations and smart home.</div>
-          <div class="product-footer">
-            <span class="price">1.80 JD</span>
-            <button class="add-btn">+ Add</button>
-          </div>
-        </div>
-      </div>
-      <div class="product-card">
-        <div class="product-img">📶
-          <div class="product-badge">Popular</div>
-        </div>
-        <div class="product-info">
-          <div class="product-name">ESP32 DevKit</div>
-          <div class="product-desc">WiFi + Bluetooth microcontroller. Ideal for IoT projects with 38 GPIO pins and low power mode.</div>
-          <div class="product-footer">
-            <span class="price">4.20 JD</span>
-            <button class="add-btn">+ Add</button>
-          </div>
-        </div>
-      </div>
-      <div class="product-card">
-        <div class="product-img">🤖</div>
-        <div class="product-info">
-          <div class="product-name">Servo Motor SG90</div>
-          <div class="product-desc">Lightweight mini servo motor. 180° rotation, ideal for robotics arms, RC cars, and automation.</div>
-          <div class="product-footer">
-            <span class="price">1.20 JD</span>
-            <button class="add-btn">+ Add</button>
-          </div>
-        </div>
-      </div>
-      <div class="product-card">
-        <div class="product-img">📷
-          <div class="product-badge">Sale</div>
-        </div>
-        <div class="product-info">
-          <div class="product-name">Pi Camera Module v3</div>
-          <div class="product-desc">12MP Sony IMX708 sensor with autofocus. Works with all Raspberry Pi boards.</div>
-          <div class="product-footer">
-            <span class="price">18.00 JD</span>
-            <button class="add-btn">+ Add</button>
-          </div>
-        </div>
-      </div>
-    </div>
+  <section class="section">
+    <div class="section-label">/ Bestsellers</div>
+    <div class="section-title reveal">Popular Picks</div>
+    <div class="products-grid reveal" id="home-featured"></div>
   </section>
 
-  <!-- WHY US -->
-  <section class="section" id="why">
-    <div class="section-label">/ Why MikroElectron</div>
-    <div class="section-title">Built for makers,<br/>engineers & students</div>
-    <div class="why-grid reveal">
-      <div class="why-card">
-        <div class="why-icon">🚀</div>
-        <div class="why-title">24-Hour Delivery</div>
-        <div class="why-text">University students get free delivery within 24 hours anywhere near the Jordanian University campus.</div>
+  <section class="section" style="background:var(--surface);">
+    <div style="background:linear-gradient(135deg,#7c3aed 0%,#0066ff 100%);border-radius:16px;padding:3.5rem;display:flex;align-items:center;justify-content:space-between;gap:2rem;flex-wrap:wrap;" class="reveal">
+      <div>
+        <h2 style="font-size:1.9rem;font-weight:800;letter-spacing:-1px;margin-bottom:0.75rem;">Free soldering on every order</h2>
+        <p style="color:rgba(255,255,255,0.72);max-width:460px;line-height:1.6;font-size:0.95rem;">We solder header pins onto your components for free. Plus free delivery to university students in Amman within 24 hours.</p>
       </div>
-      <div class="why-card">
-        <div class="why-icon">🔧</div>
-        <div class="why-title">Free Soldering</div>
-        <div class="why-text">We solder pins onto your components for free — something you won't find anywhere else in Jordan.</div>
-      </div>
-      <div class="why-card">
-        <div class="why-icon">🎓</div>
-        <div class="why-title">Technical Support</div>
-        <div class="why-text">Our engineers help you with graduation projects and answer all your technical questions.</div>
-      </div>
-      <div class="why-card">
-        <div class="why-icon">🏪</div>
-        <div class="why-title">Huge Inventory</div>
-        <div class="why-text">Over 5,000 electronic components in stock. If we don't have it, we'll order it for you from Sparkfun or Adafruit.</div>
-      </div>
+      <button class="btn btn-primary" onclick="gotoShop('All')" style="white-space:nowrap;font-size:0.95rem;padding:1rem 2rem;">Shop Now →</button>
     </div>
   </section>
+</div>
 
-  <!-- BANNER -->
-  <div class="banner reveal" id="contact">
-    <div class="banner-content">
-      <h2>Ready to start your project?</h2>
-      <p>Visit us at Khalifa Building, 3rd Floor, University Street, Amman — or order online and we'll deliver to you.</p>
-      <br/>
-      <p style="color:rgba(255,255,255,0.6); font-family:'Space Mono',monospace; font-size:0.85rem;">📞 +962 6 222 5522 &nbsp;|&nbsp; ✉️ info@mikroelectron.com</p>
-    </div>
-    <a href="tel:+96262225522" class="btn btn-primary" style="font-size:1rem; padding:1rem 2rem;">Call Us Now →</a>
+<!-- ===== SHOP ===== -->
+<div class="page" id="page-shop">
+  <div class="shop-layout">
+    <aside class="sidebar">
+      <div class="sidebar-section">
+        <div class="sidebar-title">Category</div>
+        <button class="filter-btn active" id="cat-All" onclick="setCat('All')">All Products</button>
+        <button class="filter-btn" id="cat-Arduino" onclick="setCat('Arduino')">🔌 Arduino</button>
+        <button class="filter-btn" id="cat-RaspberryPi" onclick="setCat('Raspberry Pi')">🍓 Raspberry Pi</button>
+        <button class="filter-btn" id="cat-Sensors" onclick="setCat('Sensors')">📡 Sensors</button>
+        <button class="filter-btn" id="cat-IoT" onclick="setCat('IoT')">📶 IoT & WiFi</button>
+        <button class="filter-btn" id="cat-Robotics" onclick="setCat('Robotics')">🤖 Robotics</button>
+        <button class="filter-btn" id="cat-Displays" onclick="setCat('Displays')">🖥️ Displays</button>
+        <button class="filter-btn" id="cat-Power" onclick="setCat('Power')">⚡ Power</button>
+        <button class="filter-btn" id="cat-Tools" onclick="setCat('Tools')">🔧 Tools</button>
+      </div>
+      <div class="sidebar-section">
+        <div class="sidebar-title">Max Price</div>
+        <input type="range" class="price-range" id="price-range" min="0" max="50" value="50" oninput="setPrice(this.value)"/>
+        <div class="price-display" id="price-display">Up to 50.00 JD</div>
+      </div>
+      <div class="sidebar-section">
+        <div class="sidebar-title">Sort</div>
+        <button class="filter-btn active" id="sort-default" onclick="setSort('default')">Default</button>
+        <button class="filter-btn" id="sort-asc" onclick="setSort('asc')">Price: Low → High</button>
+        <button class="filter-btn" id="sort-desc" onclick="setSort('desc')">Price: High → Low</button>
+        <button class="filter-btn" id="sort-name" onclick="setSort('name')">Name A → Z</button>
+      </div>
+    </aside>
+    <main class="shop-main">
+      <div class="shop-header">
+        <div class="shop-title" id="shop-heading">All Products</div>
+        <div class="product-count-label" id="product-count"></div>
+      </div>
+      <div class="products-grid" id="shop-grid"></div>
+    </main>
   </div>
+</div>
 
-  <!-- FOOTER -->
-  <footer>
-    <div class="footer-brand">
-      <a class="logo" href="#">Mikro<span>Electron</span></a>
-      <p>Jordan's leading electronics store for Arduino, Raspberry Pi, sensors, and everything in between. Serving students and engineers since day one.</p>
+<!-- ===== DETAIL ===== -->
+<div class="page" id="page-detail">
+  <div class="product-detail">
+    <button class="back-btn" onclick="showPage('shop')">← Back to Shop</button>
+    <div class="detail-layout">
+      <div class="detail-img" id="d-img"></div>
+      <div>
+        <div class="detail-cat" id="d-cat"></div>
+        <div class="detail-name" id="d-name"></div>
+        <div class="detail-price" id="d-price"></div>
+        <div class="detail-desc" id="d-desc"></div>
+        <div class="detail-specs" id="d-specs"></div>
+        <div class="qty-row">
+          <span class="qty-label">Qty</span>
+          <div class="qty-ctrl">
+            <button class="qty-btn" onclick="dQty(-1)">−</button>
+            <div class="qty-num" id="d-qty">1</div>
+            <button class="qty-btn" onclick="dQty(1)">+</button>
+          </div>
+        </div>
+        <button class="btn btn-primary add-to-cart-big" id="d-add" onclick="addFromDetail()">Add to Cart 🛒</button>
+      </div>
     </div>
-    <div class="footer-col">
-      <h4>Products</h4>
-      <ul>
-        <li><a href="#">Arduino</a></li>
-        <li><a href="#">Raspberry Pi</a></li>
-        <li><a href="#">Sensors</a></li>
-        <li><a href="#">IoT Modules</a></li>
-        <li><a href="#">3D Printers</a></li>
-      </ul>
-    </div>
-    <div class="footer-col">
-      <h4>Services</h4>
-      <ul>
-        <li><a href="#">Technical Support</a></li>
-        <li><a href="#">Training Courses</a></li>
-        <li><a href="#">Project Consulting</a></li>
-        <li><a href="#">Lab Setup</a></li>
-      </ul>
-    </div>
-    <div class="footer-col">
-      <h4>Company</h4>
-      <ul>
-        <li><a href="#">About Us</a></li>
-        <li><a href="#">Contact</a></li>
-        <li><a href="#">Delivery Info</a></li>
-        <li><a href="#">Returns</a></li>
-      </ul>
-    </div>
-  </footer>
-  <div class="footer-bottom">
-    <p>© 2026 MikroElectron — Amman, Jordan</p>
-    <p>Designed with ⚡ for makers</p>
   </div>
+</div>
 
-  <script>
-    // Scroll reveal
-    const reveals = document.querySelectorAll('.reveal');
-    const observer = new IntersectionObserver((entries) => {
-      entries.forEach(e => {
-        if (e.isIntersecting) {
-          e.target.classList.add('visible');
-        }
-      });
-    }, { threshold: 0.1 });
-    reveals.forEach(r => observer.observe(r));
+<!-- ===== CHECKOUT ===== -->
+<div class="page" id="page-checkout">
+  <div class="checkout-page">
+    <button class="back-btn" onclick="showPage('shop')">← Continue Shopping</button>
+    <h2 style="font-size:1.9rem;font-weight:800;letter-spacing:-1px;margin-bottom:2rem;">Checkout</h2>
+    <div class="checkout-grid">
+      <div>
+        <div class="form-section">
+          <div class="form-title"><span class="form-num">1</span> Contact Info</div>
+          <div class="form-row">
+            <div class="form-group"><label class="form-label">First Name</label><input class="form-input" id="f-first" placeholder="Yousef"/></div>
+            <div class="form-group"><label class="form-label">Last Name</label><input class="form-input" id="f-last" placeholder="Al-Madani"/></div>
+          </div>
+          <div class="form-row full">
+            <div class="form-group"><label class="form-label">Email</label><input class="form-input" id="f-email" type="email" placeholder="you@email.com"/></div>
+          </div>
+          <div class="form-row full">
+            <div class="form-group"><label class="form-label">Phone</label><input class="form-input" id="f-phone" placeholder="+962 7X XXX XXXX"/></div>
+          </div>
+        </div>
+        <div class="form-section">
+          <div class="form-title"><span class="form-num">2</span> Delivery Address</div>
+          <div class="form-row full">
+            <div class="form-group"><label class="form-label">Street Address</label><input class="form-input" id="f-address" placeholder="Street, Building, Apartment"/></div>
+          </div>
+          <div class="form-row">
+            <div class="form-group"><label class="form-label">City</label><input class="form-input" id="f-city" placeholder="Amman"/></div>
+            <div class="form-group"><label class="form-label">District</label><input class="form-input" id="f-area" placeholder="Jubeiha"/></div>
+          </div>
+        </div>
+        <div class="form-section">
+          <div class="form-title"><span class="form-num">3</span> Payment</div>
+          <div style="display:flex;gap:1rem;flex-wrap:wrap;">
+            <label style="display:flex;align-items:center;gap:0.5rem;cursor:pointer;background:var(--surface);border:1px solid var(--accent);border-radius:8px;padding:0.7rem 1.1rem;font-size:0.88rem;font-weight:600;">
+              <input type="radio" name="pay" value="cash" checked style="accent-color:var(--accent);"/> 💵 Cash on Delivery
+            </label>
+            <label style="display:flex;align-items:center;gap:0.5rem;cursor:pointer;background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:0.7rem 1.1rem;font-size:0.88rem;font-weight:600;">
+              <input type="radio" name="pay" value="cliq" style="accent-color:var(--accent);"/> 📱 CliQ
+            </label>
+          </div>
+          <div style="margin-top:1rem;padding:0.7rem 1rem;background:rgba(0,229,255,0.05);border:1px solid rgba(0,229,255,0.15);border-radius:8px;font-size:0.8rem;color:var(--muted);">
+            📦 Free delivery within 24h to university areas. 1-2 days elsewhere in Amman.
+          </div>
+        </div>
+      </div>
+      <div>
+        <div class="order-summary-box">
+          <div class="summary-title">Order Summary</div>
+          <div id="checkout-items"></div>
+          <div class="summary-total"><span>Total</span><span class="summary-total-price" id="checkout-total">0.00 JD</span></div>
+          <button class="btn btn-primary place-order-btn" onclick="placeOrder()">Place Order →</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
 
-    // Add to cart feedback
-    document.querySelectorAll('.add-btn').forEach(btn => {
-      btn.addEventListener('click', function() {
-        const orig = this.textContent;
-        this.textContent = '✓ Added!';
-        this.style.background = 'var(--green)';
-        this.style.color = '#000';
-        this.style.borderColor = 'var(--green)';
-        setTimeout(() => {
-          this.textContent = orig;
-          this.style.background = '';
-          this.style.color = '';
-          this.style.borderColor = '';
-        }, 1500);
-      });
-    });
-  </script>
+<!-- ===== SUCCESS ===== -->
+<div class="page" id="page-success">
+  <div class="success-page">
+    <div class="success-icon">🎉</div>
+    <div class="success-title">Order Placed!</div>
+    <div class="success-sub">Thank you! Your order has been received and we'll contact you shortly to confirm delivery details.</div>
+    <div class="order-box" id="success-box"></div>
+    <button class="btn btn-primary" onclick="showPage('home')" style="font-size:0.95rem;padding:1rem 2.5rem;">Continue Shopping →</button>
+  </div>
+</div>
+
+<script>
+// ========== PRODUCTS DATA ==========
+const PRODUCTS = [
+  {id:1,name:"Arduino Uno R3",cat:"Arduino",emoji:"🔌",price:3.50,badge:"hot",desc:"The classic microcontroller. ATmega328P, 14 digital I/O pins, 6 analog inputs, USB connection. The best starting board.",specs:{Microcontroller:"ATmega328P","Clock":"16 MHz","Digital I/O":"14","Analog In":"6","Flash":"32 KB","USB":"Type-B"}},
+  {id:2,name:"Arduino Nano",cat:"Arduino",emoji:"🔌",price:2.80,badge:"",desc:"Compact Arduino board. Perfect for breadboard projects. Same power as the Uno in a tiny form factor.",specs:{Microcontroller:"ATmega328P","Clock":"16 MHz","Size":"18×45mm","Digital I/O":"14"}},
+  {id:3,name:"Arduino Mega 2560",cat:"Arduino",emoji:"🔌",price:7.50,badge:"",desc:"54 digital I/O pins and 256KB of flash. Ideal for complex projects needing lots of I/O connections.",specs:{Microcontroller:"ATmega2560","Digital I/O":"54","Analog In":"16","Flash":"256 KB"}},
+  {id:4,name:"Arduino Pro Mini 3.3V",cat:"Arduino",emoji:"🔌",price:1.90,badge:"sale",desc:"Tiny low-power Arduino perfect for battery-powered wearable and portable projects.",specs:{Microcontroller:"ATmega328P","Voltage":"3.3V","Clock":"8 MHz","Size":"18×33mm"}},
+  {id:5,name:"Arduino Leonardo",cat:"Arduino",emoji:"🔌",price:5.20,badge:"",desc:"Native USB HID support — emulates a keyboard or mouse. Great for automation and HID hacks.",specs:{Microcontroller:"ATmega32u4","USB":"Native HID","Digital I/O":"20","Analog In":"12"}},
+  {id:6,name:"Raspberry Pi 5 (4GB)",cat:"Raspberry Pi",emoji:"🍓",price:42.00,badge:"new",desc:"Most powerful Pi ever. Quad-core ARM Cortex-A76 @ 2.4GHz, 4GB LPDDR4X RAM, PCIe connector.",specs:{CPU:"Cortex-A76 Quad-Core","RAM":"4 GB LPDDR4X","USB":"3.0 ×2 + 2.0 ×2","GPIO":"40 pins","Video":"Dual 4K HDMI"}},
+  {id:7,name:"Raspberry Pi 4B (2GB)",cat:"Raspberry Pi",emoji:"🍓",price:28.00,badge:"",desc:"Versatile single-board computer. Runs full Linux desktop. Great for media centers and projects.",specs:{CPU:"Cortex-A72 Quad","RAM":"2 GB","USB":"3.0 ×2","Wireless":"WiFi + BT 5.0"}},
+  {id:8,name:"Raspberry Pi Zero 2W",cat:"Raspberry Pi",emoji:"🍓",price:14.00,badge:"",desc:"Tiny but quad-core. Built-in WiFi and Bluetooth in a credit-card-sized board.",specs:{CPU:"Cortex-A53 Quad","RAM":"512 MB","Size":"65×30mm","Wireless":"WiFi + BT 4.2"}},
+  {id:9,name:"Pi Camera Module v3",cat:"Raspberry Pi",emoji:"📷",price:18.00,badge:"sale",desc:"12MP Sony IMX708 sensor with autofocus. Wide-angle version available. Perfect for vision projects.",specs:{Sensor:"Sony IMX708","Resolution":"12 MP","Focus":"Autofocus","Interface":"CSI-2"}},
+  {id:10,name:"DHT22 Temp & Humidity",cat:"Sensors",emoji:"🌡️",price:1.80,badge:"hot",desc:"High-accuracy temp and humidity sensor. Better precision than DHT11. Perfect for weather stations.",specs:{"Temp Range":"-40 to +80°C","Humidity":"0-100% RH","Accuracy":"±0.5°C","Protocol":"1-Wire"}},
+  {id:11,name:"HC-SR04 Ultrasonic",cat:"Sensors",emoji:"📏",price:0.90,badge:"",desc:"Ultrasonic distance sensor measuring 2cm to 400cm. Used in obstacle avoidance and distance projects.",specs:{Range:"2-400 cm","Accuracy":"3mm","Frequency":"40 kHz","Voltage":"5V"}},
+  {id:12,name:"MPU-6050 IMU",cat:"Sensors",emoji:"🔄",price:1.50,badge:"",desc:"6-axis IMU with 3-axis gyroscope and 3-axis accelerometer. Used in drones, robots, and balancing.",specs:{Axes:"6 DOF (3 Gyro + 3 Accel)","Interface":"I2C","Voltage":"3.3V/5V","DMP":"Built-in"}},
+  {id:13,name:"MQ-2 Gas Sensor",cat:"Sensors",emoji:"💨",price:1.20,badge:"",desc:"Detects smoke, LPG, propane, methane. Used in fire alarms and gas leak detection systems.",specs:{Detects:"LPG, Smoke, H2, CO","Output":"Analog + Digital","Voltage":"5V","Preheat":"20s"}},
+  {id:14,name:"PIR Motion Sensor",cat:"Sensors",emoji:"👁️",price:1.10,badge:"hot",desc:"Passive infrared motion detector. Triggers on human movement up to 7m. Adjustable sensitivity.",specs:{Range:"7m max","Angle":"120°","Output":"Digital","Voltage":"5-20V"}},
+  {id:15,name:"Soil Moisture Sensor",cat:"Sensors",emoji:"🌱",price:0.80,badge:"",desc:"Detect soil wetness for smart plant watering, agriculture automation, and greenhouse projects.",specs:{Output:"Analog + Digital","Voltage":"3.3-5V","Probe":"60mm stainless"}},
+  {id:16,name:"ESP32 DevKit v1",cat:"IoT",emoji:"📶",price:4.20,badge:"hot",desc:"Dual-core 240MHz WiFi + Bluetooth chip. The #1 microcontroller for IoT and home automation.",specs:{CPU:"Xtensa LX6 Dual-Core","WiFi":"802.11 b/g/n","BT":"4.2 + BLE","GPIO":"38","Flash":"4 MB"}},
+  {id:17,name:"ESP8266 NodeMCU",cat:"IoT",emoji:"📶",price:2.50,badge:"",desc:"Affordable WiFi microcontroller. Great for basic IoT projects and smart home integration.",specs:{CPU:"Xtensa L106 80MHz","WiFi":"802.11 b/g/n","GPIO":"11","Flash":"4 MB"}},
+  {id:18,name:"NRF24L01 RF Module",cat:"IoT",emoji:"📡",price:1.30,badge:"",desc:"2.4GHz wireless transceiver for radio communication. Range up to 100m in open space.",specs:{Frequency:"2.4 GHz ISM","Range":"100m (LOS)","Speed":"250kbps-2Mbps","Voltage":"1.9-3.6V"}},
+  {id:19,name:"SIM800L GSM Module",cat:"IoT",emoji:"📱",price:6.50,badge:"new",desc:"Send SMS, make calls, and use GPRS mobile data directly from your microcontroller.",specs:{Band:"Quad-band GSM","Interface":"UART AT","Voltage":"3.4-4.4V","SIM":"Micro SIM"}},
+  {id:20,name:"SG90 Servo Motor",cat:"Robotics",emoji:"⚙️",price:1.20,badge:"hot",desc:"Lightweight mini servo. 180° rotation, 3-pin PWM control. Great for RC cars, robot arms.",specs:{Torque:"1.8 kg·cm","Speed":"0.1s/60°","Voltage":"4.8-6V","Weight":"9g","Gears":"Nylon"}},
+  {id:21,name:"MG996R Metal Servo",cat:"Robotics",emoji:"⚙️",price:3.50,badge:"",desc:"Heavy-duty metal gear servo with high torque. Ideal for robot arms, legs, and demanding loads.",specs:{Torque:"13 kg·cm","Speed":"0.17s/60°","Voltage":"4.8-7.2V","Gears":"Full Metal"}},
+  {id:22,name:"L298N Motor Driver",cat:"Robotics",emoji:"🤖",price:2.20,badge:"",desc:"Dual H-bridge driver. Control 2 DC motors or 1 stepper motor. Classic for robot cars.",specs:{Channels:"2 DC motors","Max Current":"2A/channel","Input Voltage":"5-35V","Logic":"5V"}},
+  {id:23,name:"HC-05 Bluetooth",cat:"Robotics",emoji:"🔵",price:2.80,badge:"",desc:"Classic Bluetooth 2.0 module for wireless UART communication. Control your robot from your phone.",specs:{Standard:"BT 2.0 SPP","Range":"10m","Interface":"UART","Default Baud":"9600"}},
+  {id:24,name:"0.96\" OLED Display",cat:"Displays",emoji:"🖥️",price:2.10,badge:"hot",desc:"Crisp 128×64 OLED. I2C interface, very low power. Perfect for showing sensor readings.",specs:{Size:'0.96"',"Resolution":"128×64 px","Interface":"I2C (SDA/SCL)","Color":"White/Blue"}},
+  {id:25,name:"1.8\" TFT LCD Color",cat:"Displays",emoji:"🖥️",price:3.80,badge:"",desc:"Full color 128×160 TFT display. SPI interface with great brightness for UI projects.",specs:{Size:'1.8"',"Resolution":"128×160 px","Interface":"SPI","Colors":"65,536"}},
+  {id:26,name:"16×2 LCD Display",cat:"Displays",emoji:"📟",price:1.40,badge:"",desc:"Classic character LCD. 16 columns, 2 rows, blue backlight. Add I2C backpack for easy wiring.",specs:{Characters:"16 col × 2 row","Interface":"Parallel / I2C","Backlight":"Blue LED","Voltage":"5V"}},
+  {id:27,name:"LM2596 Buck Converter",cat:"Power",emoji:"⚡",price:1.60,badge:"",desc:"Adjustable step-down voltage regulator. Great for powering components from higher voltage supplies.",specs:{Input:"4-40V","Output":"1.25-37V adj.","Max Current":"3A","Efficiency":"~92%"}},
+  {id:28,name:"18650 Li-Ion Battery",cat:"Power",emoji:"🔋",price:2.50,badge:"",desc:"Rechargeable 18650 cell, 3.7V 2600mAh. Standard cell for DIY power banks and portable projects.",specs:{Voltage:"3.7V nominal","Capacity":"2600 mAh","Size":"18×65mm","Cycles":"500+"}},
+  {id:29,name:"Soldering Iron Kit 60W",cat:"Tools",emoji:"🔧",price:8.50,badge:"",desc:"60W adjustable-temp soldering station with replaceable tip, stand, solder wire, and carrying case.",specs:{Power:"60W","Temp":"200-450°C adj.","Tip":"Replaceable ceramic","Includes":"Stand + Solder"}},
+  {id:30,name:"830-Tie Breadboard",cat:"Tools",emoji:"🔩",price:1.50,badge:"hot",desc:"Full-size 830 tie-point solderless breadboard. 2 power rails, color-coded rows. Essential for prototyping.",specs:{"Tie Points":"830","Power Rails":"4 (2 per side)","Material":"ABS plastic","Binding":"Color-coded"}},
+];
+
+// ========== STATE ==========
+let cart = [];
+let currentCat = 'All';
+let currentPrice = 50;
+let currentSort = 'default';
+let currentProduct = null;
+let dQtyVal = 1;
+let searchTerm = '';
+
+// ========== INIT ==========
+window.onload = () => {
+  renderFeatured();
+  renderShop();
+  setupReveal();
+};
+
+function setupReveal() {
+  const obs = new IntersectionObserver(es => es.forEach(e => { if(e.isIntersecting) e.target.classList.add('visible'); }), {threshold:0.1});
+  document.querySelectorAll('.reveal').forEach(el => obs.observe(el));
+}
+
+// ========== NAVIGATION ==========
+function showPage(p) {
+  document.querySelectorAll('.page').forEach(x => x.classList.remove('active'));
+  document.getElementById('page-'+p).classList.add('active');
+  document.querySelectorAll('.nav-links a').forEach(a => a.classList.remove('active'));
+  const nav = document.getElementById('nav-'+p);
+  if(nav) nav.classList.add('active');
+  window.scrollTo({top:0,behavior:'smooth'});
+  if(p === 'home') setTimeout(setupReveal, 100);
+}
+
+function gotoShop(cat) {
+  currentCat = cat;
+  searchTerm = '';
+  document.getElementById('nav-search').value = '';
+  updateCatButtons();
+  renderShop();
+  showPage('shop');
+  document.getElementById('shop-heading').textContent = cat === 'All' ? 'All Products' : cat;
+}
+
+// ========== FILTERS ==========
+function setCat(cat) {
+  currentCat = cat;
+  searchTerm = '';
+  document.getElementById('nav-search').value = '';
+  updateCatButtons();
+  document.getElementById('shop-heading').textContent = cat === 'All' ? 'All Products' : cat;
+  renderShop();
+}
+
+function updateCatButtons() {
+  document.querySelectorAll('.filter-btn[id^="cat-"]').forEach(b => b.classList.remove('active'));
+  const id = 'cat-' + currentCat.replace(/ /g,'');
+  const el = document.getElementById(id);
+  if(el) el.classList.add('active');
+}
+
+function setPrice(val) {
+  currentPrice = parseFloat(val);
+  document.getElementById('price-display').textContent = 'Up to '+currentPrice.toFixed(2)+' JD';
+  renderShop();
+}
+
+function setSort(s) {
+  currentSort = s;
+  document.querySelectorAll('.filter-btn[id^="sort-"]').forEach(b => b.classList.remove('active'));
+  document.getElementById('sort-'+s).classList.add('active');
+  renderShop();
+}
+
+function handleSearch(val) {
+  searchTerm = val.toLowerCase();
+  currentCat = 'All';
+  updateCatButtons();
+  document.getElementById('shop-heading').textContent = val ? `Results for "${val}"` : 'All Products';
+  showPage('shop');
+  renderShop();
+}
+
+function getFiltered() {
+  let list = [...PRODUCTS];
+  if(currentCat !== 'All') list = list.filter(p => p.cat === currentCat);
+  list = list.filter(p => p.price <= currentPrice);
+  if(searchTerm) list = list.filter(p => p.name.toLowerCase().includes(searchTerm) || p.cat.toLowerCase().includes(searchTerm) || p.desc.toLowerCase().includes(searchTerm));
+  if(currentSort === 'asc') list.sort((a,b) => a.price - b.price);
+  else if(currentSort === 'desc') list.sort((a,b) => b.price - a.price);
+  else if(currentSort === 'name') list.sort((a,b) => a.name.localeCompare(b.name));
+  return list;
+}
+
+// ========== RENDER SHOP ==========
+function renderShop() {
+  const grid = document.getElementById('shop-grid');
+  if(!grid) return;
+  const list = getFiltered();
+  document.getElementById('product-count').textContent = list.length + ' product' + (list.length !== 1 ? 's' : '');
+  if(list.length === 0) {
+    grid.innerHTML = `<div class="no-results"><div class="no-results-icon">🔍</div><p>No products found.<br/>Try adjusting your filters.</p></div>`;
+    return;
+  }
+  grid.innerHTML = list.map(cardHTML).join('');
+}
+
+function renderFeatured() {
+  const el = document.getElementById('home-featured');
+  if(!el) return;
+  const list = PRODUCTS.filter(p => p.badge === 'hot').slice(0,6);
+  el.innerHTML = list.map(cardHTML).join('');
+}
+
+function cardHTML(p) {
+  const inCart = cart.find(c => c.id === p.id);
+  return `<div class="product-card" onclick="openDetail(${p.id})">
+    <div class="product-img">${p.emoji}
+      ${p.badge ? `<span class="badge badge-${p.badge}">${p.badge}</span>` : ''}
+    </div>
+    <div class="product-info">
+      <div class="product-cat">${p.cat}</div>
+      <div class="product-name">${p.name}</div>
+      <div class="product-desc">${p.desc.substring(0,65)}...</div>
+      <div class="product-footer">
+        <span class="price">${p.price.toFixed(2)} JD</span>
+        <button class="add-btn${inCart?' added':''}" id="ab-${p.id}" onclick="event.stopPropagation();quickAdd(${p.id})">
+          ${inCart ? '✓ Added' : '+ Add'}
+        </button>
+      </div>
+    </div>
+  </div>`;
+}
+
+// ========== DETAIL ==========
+function openDetail(id) {
+  const p = PRODUCTS.find(x => x.id === id);
+  if(!p) return;
+  currentProduct = p;
+  dQtyVal = 1;
+  document.getElementById('d-img').textContent = p.emoji;
+  document.getElementById('d-cat').textContent = p.cat;
+  document.getElementById('d-name').textContent = p.name;
+  document.getElementById('d-price').textContent = p.price.toFixed(2) + ' JD';
+  document.getElementById('d-desc').textContent = p.desc;
+  document.getElementById('d-qty').textContent = '1';
+  document.getElementById('d-specs').innerHTML = Object.entries(p.specs).map(([k,v]) =>
+    `<div class="spec-row"><span class="spec-key">${k}</span><span class="spec-val">${v}</span></div>`
+  ).join('');
+  const inCart = cart.find(c => c.id === id);
+  document.getElementById('d-add').textContent = inCart ? '✓ Already in Cart' : 'Add to Cart 🛒';
+  showPage('detail');
+}
+
+function dQty(d) {
+  dQtyVal = Math.max(1, dQtyVal + d);
+  document.getElementById('d-qty').textContent = dQtyVal;
+}
+
+function addFromDetail() {
+  if(!currentProduct) return;
+  addToCart(currentProduct.id, dQtyVal);
+  document.getElementById('d-add').textContent = '✓ Added to Cart!';
+}
+
+// ========== CART ==========
+function quickAdd(id) {
+  addToCart(id, 1);
+}
+
+function addToCart(id, qty=1) {
+  const p = PRODUCTS.find(x => x.id === id);
+  if(!p) return;
+  const ex = cart.find(c => c.id === id);
+  if(ex) ex.qty += qty; else cart.push({...p, qty});
+  updateCartMeta();
+  toast('✅ '+p.name+' added!');
+  const btn = document.getElementById('ab-'+id);
+  if(btn) { btn.textContent = '✓ Added'; btn.classList.add('added'); }
+}
+
+function removeItem(id) {
+  cart = cart.filter(c => c.id !== id);
+  updateCartMeta();
+  drawCartItems();
+}
+
+function changeQty(id, d) {
+  const item = cart.find(c => c.id === id);
+  if(!item) return;
+  item.qty = Math.max(1, item.qty + d);
+  updateCartMeta();
+  drawCartItems();
+}
+
+function updateCartMeta() {
+  const count = cart.reduce((s,c) => s+c.qty, 0);
+  const total = cart.reduce((s,c) => s+c.price*c.qty, 0);
+  const badge = document.getElementById('cart-badge');
+  if(count > 0) { badge.style.display = 'flex'; badge.textContent = count; }
+  else { badge.style.display = 'none'; }
+  const tv = document.getElementById('cart-total-val');
+  if(tv) tv.textContent = total.toFixed(2) + ' JD';
+  const cf = document.getElementById('cart-footer');
+  if(cf) cf.style.display = cart.length > 0 ? 'block' : 'none';
+}
+
+function drawCartItems() {
+  const el = document.getElementById('cart-items');
+  if(!el) return;
+  if(cart.length === 0) {
+    el.innerHTML = `<div class="cart-empty-state"><div class="empty-icon">🛒</div><p style="font-weight:600;">Your cart is empty</p><button class="btn btn-outline" onclick="closeCart();gotoShop('All')" style="margin-top:1rem;font-size:0.85rem;padding:0.6rem 1.2rem;">Browse Products</button></div>`;
+    return;
+  }
+  el.innerHTML = cart.map(item => `
+    <div class="cart-item">
+      <div class="cart-item-img">${item.emoji}</div>
+      <div class="cart-item-info">
+        <div class="cart-item-name">${item.name}</div>
+        <div class="cart-item-price">${(item.price*item.qty).toFixed(2)} JD</div>
+        <div class="cart-item-controls">
+          <button class="cqty-btn" onclick="changeQty(${item.id},-1)">−</button>
+          <span class="cqty-num">${item.qty}</span>
+          <button class="cqty-btn" onclick="changeQty(${item.id},1)">+</button>
+        </div>
+      </div>
+      <button class="remove-btn" onclick="removeItem(${item.id})" title="Remove">🗑️</button>
+    </div>`).join('');
+}
+
+function openCart() {
+  drawCartItems();
+  updateCartMeta();
+  document.getElementById('cart-overlay').classList.add('open');
+  document.getElementById('cart-drawer').classList.add('open');
+}
+
+function closeCart() {
+  document.getElementById('cart-overlay').classList.remove('open');
+  document.getElementById('cart-drawer').classList.remove('open');
+}
+
+// ========== CHECKOUT ==========
+function renderCheckout() {
+  const itemsEl = document.getElementById('checkout-items');
+  const totalEl = document.getElementById('checkout-total');
+  if(!itemsEl) return;
+  const total = cart.reduce((s,c) => s+c.price*c.qty, 0);
+  if(cart.length === 0) {
+    itemsEl.innerHTML = '<div style="color:var(--muted);font-size:0.85rem;padding:0.5rem 0;">No items in cart</div>';
+  } else {
+    itemsEl.innerHTML = cart.map(item => `
+      <div class="summary-item">
+        <span class="summary-item-name">${item.emoji} ${item.name} ×${item.qty}</span>
+        <span class="summary-item-price">${(item.price*item.qty).toFixed(2)} JD</span>
+      </div>`).join('');
+  }
+  totalEl.textContent = total.toFixed(2) + ' JD';
+}
+
+function placeOrder() {
+  const first = document.getElementById('f-first').value.trim();
+  const last = document.getElementById('f-last').value.trim();
+  const email = document.getElementById('f-email').value.trim();
+  const phone = document.getElementById('f-phone').value.trim();
+  const address = document.getElementById('f-address').value.trim();
+  const city = document.getElementById('f-city').value.trim();
+  if(!first||!last||!email||!phone||!address||!city) { toast('⚠️ Please fill all fields!'); return; }
+  if(cart.length === 0) { toast('⚠️ Your cart is empty!'); return; }
+  const total = cart.reduce((s,c) => s+c.price*c.qty, 0);
+  const totalItems = cart.reduce((s,c) => s+c.qty, 0);
+  const payment = document.querySelector('input[name="pay"]:checked').value;
+  const orderId = 'ME-' + Math.random().toString(36).substr(2,8).toUpperCase();
+  document.getElementById('success-box').innerHTML = `
+    <div class="order-row"><span class="order-key">Order ID</span><span class="order-val">${orderId}</span></div>
+    <div class="order-row"><span class="order-key">Customer</span><span class="order-val">${first} ${last}</span></div>
+    <div class="order-row"><span class="order-key">Email</span><span class="order-val">${email}</span></div>
+    <div class="order-row"><span class="order-key">Phone</span><span class="order-val">${phone}</span></div>
+    <div class="order-row"><span class="order-key">Address</span><span class="order-val">${address}, ${city}</span></div>
+    <div class="order-row"><span class="order-key">Items</span><span class="order-val">${totalItems} item(s)</span></div>
+    <div class="order-row"><span class="order-key">Total</span><span class="order-val">${total.toFixed(2)} JD</span></div>
+    <div class="order-row"><span class="order-key">Payment</span><span class="order-val">${payment === 'cash' ? '💵 Cash on Delivery' : '📱 CliQ'}</span></div>`;
+  cart = [];
+  updateCartMeta();
+  showPage('success');
+}
+
+// ========== TOAST ==========
+function toast(msg) {
+  const t = document.getElementById('toast');
+  document.getElementById('toast-msg').textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2500);
+}
+</script>
 </body>
 </html>
